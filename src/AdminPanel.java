@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class AdminPanel extends JPanel {
     private JComboBox<ImageIcon>[] symbolSelectors;
@@ -14,9 +13,9 @@ public class AdminPanel extends JPanel {
     public AdminPanel(SlotMachine slotMachine) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        // Button to test spinReels function
-        JButton spinReelsButton = new JButton("Test spinReels");
-        spinReelsButton.addActionListener(new ActionListener() {
+        // Button to select reels manually
+        JButton manualReels = new JButton("Select Reels Manually");
+        manualReels.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Create a new JFrame for the spinReels test
@@ -33,8 +32,7 @@ public class AdminPanel extends JPanel {
                         @Override
                         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                            if (value instanceof ImageIcon) {
-                                ImageIcon icon = (ImageIcon) value;
+                            if (value instanceof ImageIcon icon) {
                                 ImageIcon resizedIcon = slotMachine.imageResizer.resizeImageIcon(icon, 30, 30); // Resize the icon to fit comfortably within the dropdown box
                                 setIcon(resizedIcon);
                             }
@@ -67,7 +65,7 @@ public class AdminPanel extends JPanel {
                 spinReelsFrame.setVisible(true);
             }
         });
-        add(spinReelsButton);
+        add(manualReels);
 
             // Button to test checkWinningCombination function
             JButton checkWinningCombinationButton = new JButton("Test checkWinningCombination");
@@ -123,6 +121,7 @@ public class AdminPanel extends JPanel {
                         int bonusPotValue = Integer.parseInt(bonusPotValueField.getText());
                         slotMachine.bonusRound.setBonusPotValue(bonusPotValue);
                         slotMachine.bonusRound.updateBonusPot();
+                        slotMachine.bonusPotLabel.setText("Bonus Pot: $" + bonusPotValue + "/1000!");
                         slotMachine.bonusPotMeter.setValue(bonusPotValue);
                     } catch (NumberFormatException ex) {
                         System.out.println("Invalid bonus pot value!");

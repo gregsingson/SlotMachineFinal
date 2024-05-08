@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class BonusSlotGame {
-    private ArrayList<ImageIcon> symbols;
-    private Random rand = new Random();
-    private PayTable payTable;
-    private int multiplier;
+    private final ArrayList<ImageIcon> symbols;
+    private final Random rand = new Random();
+    private final PayTable payTable;
     private int payout;
 
     public BonusSlotGame(ArrayList<ImageIcon> symbols, PayTable payTable, int multiplier) {
@@ -32,8 +31,9 @@ public class BonusSlotGame {
         spunSymbols.add(reel5);
 
         // Determine the payout based on the images that appear on the reels
-        for (ArrayList<ImageIcon> winningCombo : payTable.payTable.keySet()) {
+        for (ImageIcon winningCombo : payTable.payTable.keySet()) {
             if (spunSymbols.equals(winningCombo)) {
+                int multiplier = 2;
                 payout = payTable.payTable.get(winningCombo) * multiplier;
                 break;
             }

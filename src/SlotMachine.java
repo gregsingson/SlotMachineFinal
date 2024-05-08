@@ -3,20 +3,17 @@ package src;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.Timer;
 import java.util.*;
 
 public class SlotMachine extends JFrame implements ActionListener {
 
-    // GUI components
-    private JPanel mainPanel, topPanel, centerPanel, bottomPanel;
     private JLabel[] reels;
-    private JButton spinButton;
-    private JTextField betField;
-    private JLabel balanceLabel, winningsLabel;
+    private final JButton spinButton;
+    private final JTextField betField;
+    private final JLabel balanceLabel;
+    private final JLabel winningsLabel;
     protected JProgressBar bonusPotMeter;
-    private JLabel bonusPotLabel;
-    private JButton rulesButton;
+    protected JLabel bonusPotLabel;
 
     ImageResizer imageResizer = new ImageResizer();
 
@@ -26,9 +23,6 @@ public class SlotMachine extends JFrame implements ActionListener {
     protected final int NUM_REELS = 5;
     public void setStopReels(ArrayList<ImageIcon> stopReels) {
         this.stopReels = stopReels;
-    }
-    public ArrayList<ImageIcon> getStopReels() {
-        return stopReels;
     }
     private double balance, currentBet;
     public double getBalance() {
@@ -46,15 +40,15 @@ public class SlotMachine extends JFrame implements ActionListener {
             new ImageIcon("src/symbols/plum.png"), //3
             new ImageIcon("src/symbols/bell.png"), //4
             new ImageIcon("src/symbols/bar.png"), //5
-            new ImageIcon("src/symbols/seven.png") //6
+            new ImageIcon("src/symbols/seven.png"), //6
+            new ImageIcon("src/symbols/code.png") //7
     };
 
     PayTable slotPayTable = new PayTable(symbols);
 
     // Bonus game data
-    private boolean bonusRoundActive, bonusRoundSpun;
-    private JFrame bonusFrame;
-    private JLabel bonusPot;
+    protected boolean bonusRoundActive;
+    private boolean bonusRoundSpun;
     protected int bonusPotValue;
 
     public SlotMachine() {
@@ -64,28 +58,38 @@ public class SlotMachine extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
 
         // Rules button
-        rulesButton = new JButton("Rules");
+        JButton rulesButton = new JButton("Rules");
 
         // Add action listener to rules button
         rulesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,
-                        "Match 5 sevens to win the $10,000!\n" +
-                        "Match 4 bars and a seven to win $7500!\n" +
-                        "Match 3 bells and 2 plums to win $5000!\n" +
-                        "Match 3 sevens to win $3000!\n" +
-                        "Match 1 bar and 4 cherries to win $300!\n" +
-                        "Match 3 lemons to win $200!\n" +
-                        "Match 2 cherries to win $100!\n" +
-                        "10% of winnings go to the bonus pot!\n" +
-                        "Fill the bonus pot to 500 to activate the bonus round!",
-                        "Rules", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane optionPane = new JOptionPane(
+                        "Rules:\n" +
+                                "Spin the reels and match three symbols in a row to win!\n" +
+                                "Cherries pay $1000!\n" +
+                                "Lemons pay $600!\n" +
+                                "Oranges pay $500!\n" +
+                                "Plums pay $400!\n" +
+                                "Bells pay $300!\n" +
+                                "Bars pay $100!\n" +
+                                "Sevens pay $2500!\n" +
+                                "Scatter symbols pay $250 for each appearance!\n" +
+                                "10% of each win is added to the bonus pot!\n" +
+                                "Get the bonus pot to $1000 to activate the bonus round!\n" +
+                                "In the bonus round, all wins are doubled!\n" +
+                                "Good luck!",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                JDialog dialog = optionPane.createDialog("Rules");
+                dialog.setModal(false);
+                dialog.setVisible(true);
             }
         });
 
         // Set up main panel
-        mainPanel = new JPanel(new BorderLayout());
+        // GUI components
+        JPanel mainPanel = new JPanel(new BorderLayout());
         JButton adminButton = new JButton("Admin Panel");
         mainPanel.add(adminButton, BorderLayout.EAST);
 
@@ -124,14 +128,14 @@ public class SlotMachine extends JFrame implements ActionListener {
         mainPanel.add(reelsPanel, BorderLayout.CENTER);
 
         // Top panel
-        topPanel = new JPanel(new FlowLayout());
+        JPanel topPanel = new JPanel(new FlowLayout());
         balanceLabel = new JLabel("Balance: $100.00");
         topPanel.add(balanceLabel);
         topPanel.add(rulesButton);
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
         // Center panel
-        centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         reels = new JLabel[NUM_REELS];
         for (int i = 0; i < NUM_REELS; i++) {
             reels[i] = new JLabel();
@@ -142,7 +146,7 @@ public class SlotMachine extends JFrame implements ActionListener {
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         // Bottom panel
-        bottomPanel = new JPanel(new FlowLayout());
+        JPanel bottomPanel = new JPanel(new FlowLayout());
         betField = new JTextField(5);
         betField.setText("1.00");
         bottomPanel.add(new JLabel("Bet: "));
@@ -159,7 +163,7 @@ public class SlotMachine extends JFrame implements ActionListener {
         topPanel.add(bonusPotLabel);
 
         // Bonus pot meter
-        bonusPotMeter = new JProgressBar(0, 500);
+        bonusPotMeter = new JProgressBar(0, 1000);
         bonusPotMeter.setValue(0);
         bonusPotMeter.setStringPainted(true);
         topPanel.add(bonusPotMeter);
@@ -184,8 +188,6 @@ public class SlotMachine extends JFrame implements ActionListener {
     // Spin the reels and determine the outcome
     protected void spinReels() {
         stopReels.clear();
-        // Clear previous symbols if stopReels is empty
-        if (stopReels.isEmpty()) {
             // Generate random symbols
             Random rand = new Random();
             for (int i = 0; i < NUM_REELS; i++) {
@@ -198,7 +200,7 @@ public class SlotMachine extends JFrame implements ActionListener {
                 bonusRound.spinBonusReels();
                 bonusRoundSpun = true;
             }
-        } else {
+         else {
             // Use the symbols in stopReels
             for (int i = 0; i < NUM_REELS; i++) {
                 ImageIcon symbol = stopReels.get(i);
@@ -215,12 +217,11 @@ public class SlotMachine extends JFrame implements ActionListener {
         // Set the multiplier based on whether the bonus round is active
         int multiplier = bonusRoundActive ? 2 : 1; // Set the multiplier to 2 if the bonus round is active
 
-        for (Map.Entry<ArrayList<ImageIcon>, Integer> entry : slotPayTable.payTable.entrySet()) {
-            ArrayList<ImageIcon> winningCombo = entry.getKey();
-            int payout = entry.getValue();
-
-            if (Collections.indexOfSubList(stopReels, winningCombo) != -1) {
+        // Check for winning combinations
+        for (int i = 0; i < stopReels.size() - 2; i++) {
+            if (stopReels.get(i).equals(stopReels.get(i + 1)) && stopReels.get(i).equals(stopReels.get(i + 2))) {
                 isWinning = true;
+                int payout = slotPayTable.payTable.get(stopReels.get(i)); // Get the payout for the winning combination
                 double totalPayout = payout * currentBet * multiplier; // Calculate the total payout
                 balance += totalPayout;
                 winningsLabel.setText("You won $" + totalPayout + "!"); // Update the winning label to reflect the total payout
@@ -229,9 +230,19 @@ public class SlotMachine extends JFrame implements ActionListener {
                 bonusPotValue += (int) (totalPayout * 0.1); // 10% of total payout added to bonus pot
                 bonusRound.updateBonusPot();
                 bonusPotMeter.setValue(bonusPotValue);
-                bonusPotLabel.setText("Bonus Pot: $" + bonusPotValue + "/500!");
+                bonusPotLabel.setText("Bonus Pot: $" + bonusPotValue + "/1000!");
                 break;
             }
+        }
+
+        // Check for scatter symbol
+        long scatterCount = stopReels.stream().filter(symbol -> symbol.getDescription().equals(symbols[7].getDescription())).count();
+        if (scatterCount > 0) {
+            isWinning = true;
+            double scatterPayout = 250 * scatterCount;
+            balance += scatterPayout;
+            bonusPotValue += (int) (scatterPayout * 0.1); // 10% of total payout added to bonus pot
+            winningsLabel.setText("Scatter symbol appeared! You won $" + scatterPayout + "!");
         }
 
         if (!isWinning) {
@@ -242,7 +253,7 @@ public class SlotMachine extends JFrame implements ActionListener {
         updateBalanceLabel();
 
         // Check if bonus round should be activated
-        if (bonusPotValue >= 500 && !bonusRoundActive) {
+        if (bonusPotValue >= 1000 && !bonusRoundActive) {
             bonusRound.startBonusRound();
             bonusRoundActive = true;
             bonusRoundSpun = false;
@@ -258,6 +269,10 @@ public class SlotMachine extends JFrame implements ActionListener {
         if (e.getSource() == spinButton) {
             try {
                 currentBet = Double.parseDouble(betField.getText());
+                if (currentBet <= 0) {
+                    winningsLabel.setText("Bet must be greater than 0!");
+                    return;
+                }
                 if (balance >= currentBet) {
                     balance -= currentBet;
                     spinReels();
